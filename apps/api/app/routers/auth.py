@@ -7,10 +7,17 @@ from app.models.models import User, Profile
 from app.schemas.common import AuthIn
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+MAX_PASSWORD_BYTES = 1024
+
+
+def _validate_password_size(password: str) -> None:
+    if len(password.encode("utf-8")) > MAX_PASSWORD_BYTES:
+        raise HTTPException(status_code=400, detail="Password too long")
 
 
 @router.post("/register")
 async def register(payload: AuthIn, response: Response, db: AsyncSession = Depends(get_db)):
+    _validate_password_size(payload.password)
     existing = (await db.execute(select(User).where(User.email == payload.email))).scalar_one_or_none()
     if existing:
         raise HTTPException(status_code=400, detail="Email already exists")
@@ -27,6 +34,7 @@ async def register(payload: AuthIn, response: Response, db: AsyncSession = Depen
 
 @router.post("/login")
 async def login(payload: AuthIn, response: Response, db: AsyncSession = Depends(get_db)):
+    _validate_password_size(payload.password)
     user = (await db.execute(select(User).where(User.email == payload.email))).scalar_one_or_none()
     if not user or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
