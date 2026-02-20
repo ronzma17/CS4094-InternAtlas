@@ -14,19 +14,12 @@ export default function Signup() {
   const router = useRouter()
 
   return (
-    <Card className='mx-auto max-w-md space-y-3'>
-      <h1 className='text-2xl font-semibold'>Sign up</h1>
+    <Card className='mx-auto mt-8 max-w-md space-y-3'>
+      <h1>Create your account</h1>
       <Input placeholder='Email' value={email} onChange={(e) => setEmail(e.target.value)} />
       <Input type='password' placeholder='Password' value={password} onChange={(e) => setPassword(e.target.value)} />
-      <Button onClick={async () => {
-        try {
-          await api.signup({ email, password })
-          router.push('/opportunities')
-        } catch (e: any) {
-          setErr(e.message)
-        }
-      }}>Create account</Button>
-      {err ? <p className='text-sm text-red-600'>{err}</p> : null}
+      <Button onClick={async () => { try { await api.signup({ email, password }); router.push('/opportunities') } catch (e: any) { setErr(e.message) } }}>Create account</Button>
+      {err ? <p className='text-sm text-danger'>{err}</p> : null}
     </Card>
   )
 }

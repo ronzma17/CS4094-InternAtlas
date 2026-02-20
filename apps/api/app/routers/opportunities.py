@@ -21,12 +21,18 @@ router = APIRouter(prefix="/opportunities", tags=["opportunities"])
 
 
 async def _explain(db, user, opps):
-    profile = (await db.execute(select(Profile).where(Profile.user_id == user.id))).scalar_one()
+    profile = (await db.execute(select(Profile).where(Profile.user_id == user.id))).scalar_one_or_none()
+    if profile is None:
+        profile = Profile(user_id=user.id, skills_json=[], interests_text="", locations_json=[])
+        db.add(profile)
+        await db.flush()
+        await db.commit()
     user_emb = embed_text(user_profile_text(profile))
+    user_skills = profile.skills_json or []
     out = []
     for o in opps:
         sim = cosine(user_emb, o.embedding_vector or [])
-        overlap = extract_overlap(profile.skills_json or [], o.tags_json or [], o.description)
+        overlap = extract_overlap(user_skills, o.tags_json or [], o.description or "")
         out.append({
             "id": o.id,
             "title": o.title,

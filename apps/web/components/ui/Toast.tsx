@@ -1,19 +1,20 @@
 'use client'
 import { createContext, useContext, useMemo, useState } from 'react'
 
-const ToastContext = createContext<(message: string) => void>(() => {})
+type ToastFn = (message: string) => void
+const ToastContext = createContext<ToastFn>(() => {})
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [message, setMessage] = useState('')
   const show = (value: string) => {
     setMessage(value)
-    setTimeout(() => setMessage(''), 2200)
+    window.setTimeout(() => setMessage(''), 2200)
   }
   const value = useMemo(() => show, [])
   return (
     <ToastContext.Provider value={value}>
       {children}
-      {message ? <div className='fixed bottom-4 right-4 rounded-lg bg-slate-900 px-4 py-2 text-sm text-white'>{message}</div> : null}
+      {message ? <div className='fixed bottom-5 right-5 z-[70] rounded-lg border bg-card px-4 py-3 text-sm shadow-card'>✅ {message}</div> : null}
     </ToastContext.Provider>
   )
 }

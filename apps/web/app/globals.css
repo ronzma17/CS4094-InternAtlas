@@ -2,6 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --background: 215 40% 98%;
+  --foreground: 226 39% 11%;
+  --muted: 220 18% 94%;
+  --muted-foreground: 222 16% 40%;
+  --card: 0 0% 100%;
+  --card-foreground: 226 39% 11%;
+  --border: 221 21% 88%;
+  --primary: 234 84% 60%;
+  --primary-foreground: 210 40% 98%;
+  --accent: 190 95% 46%;
+  --accent-foreground: 224 71% 4%;
+  --danger: 0 84% 60%;
+  --radius-xl: 1rem;
+  --radius-lg: 0.75rem;
+  --radius-md: 0.5rem;
+  --shadow-card: 0 10px 40px -20px rgba(14, 22, 39, 0.3);
+  --shadow-soft: 0 8px 20px -14px rgba(30, 41, 59, 0.6);
+}
+
+.dark {
+  --background: 227 45% 8%;
+  --foreground: 210 40% 98%;
+  --muted: 226 27% 14%;
+  --muted-foreground: 214 20% 72%;
+  --card: 225 30% 12%;
+  --card-foreground: 210 40% 98%;
+  --border: 224 24% 20%;
+  --primary: 221 83% 65%;
+  --primary-foreground: 222 47% 11%;
+  --accent: 191 81% 55%;
+  --accent-foreground: 222 47% 11%;
+  --danger: 0 72% 61%;
+  --shadow-card: 0 14px 30px -15px rgba(0, 0, 0, 0.75);
+  --shadow-soft: 0 10px 24px -14px rgba(0, 0, 0, 0.7);
+}
+
+* { @apply border-border; }
+
+html, body { height: 100%; }
+
 body {
-  @apply antialiased;
+  @apply bg-background text-foreground antialiased;
+}
+
+@layer base {
+  h1 { @apply text-3xl font-semibold tracking-tight md:text-4xl; }
+  h2 { @apply text-2xl font-semibold tracking-tight; }
+  h3 { @apply text-lg font-semibold; }
+  p { @apply leading-6; }
+}
+
+@layer utilities {
+  .focus-ring { @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background; }
 }
