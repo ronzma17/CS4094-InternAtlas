@@ -1,17 +1,31 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from app.core.db import SessionLocal, engine
 from app.models.base import Base
-from app.core.db import engine
-from app.routers import auth, profile, opportunities, tracker, admin, insights, metrics
+from app.routers import admin, auth, insights, metrics, opportunities, profile, tracker
+from app.routers.admin import seed_if_empty
 
 app = FastAPI(title="InternAtlas API")
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.on_event("startup")
 async def startup():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+    if os.getenv("AUTO_SEED", "false").lower() == "true":
+        async with SessionLocal() as session:
+            await seed_if_empty(session)
 
 
 app.include_router(auth.router)

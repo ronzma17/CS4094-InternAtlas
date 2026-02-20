@@ -10,7 +10,7 @@ export function ThemeToggle() {
   return (
     <Tooltip text={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
       <Button variant='ghost' size='icon' aria-label='Toggle theme' onClick={toggle}>
-        <span aria-hidden>{isDark ? '☀️' : '🌙'}</span>
+        <span aria-hidden className='text-lg'>{isDark ? '☀︎' : '☾'}</span>
       </Button>
     </Tooltip>
   )
