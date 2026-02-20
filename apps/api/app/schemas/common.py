@@ -34,8 +34,8 @@ class OpportunityOut(BaseModel):
 
 class AppIn(BaseModel):
     opportunity_id: int | None = None
-    title_snapshot: str
-    org_snapshot: str
+    title_snapshot: str | None = None
+    org_snapshot: str | None = None
     url_snapshot: str | None = None
     stage: StageEnum = StageEnum.Interested
     notes: str = ""
