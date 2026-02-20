@@ -8,6 +8,7 @@ import { formatDate } from '../../lib/utils'
 import { Badge } from '../../components/ui/Badge'
 import { Button } from '../../components/ui/Button'
 import { Card, Section } from '../../components/ui/Card'
+import { Drawer } from '../../components/ui/Drawer'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { Input } from '../../components/ui/Input'
 import { Select } from '../../components/ui/Select'
@@ -47,6 +48,7 @@ export default function Opportunities() {
   const [loading, setLoading] = useState(true)
   const [detailsLoading, setDetailsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   const syncRoute = (nextSelected?: number | null) => {
     const params = new URLSearchParams()
@@ -142,6 +144,21 @@ export default function Opportunities() {
     }
   }
 
+  const detailContent = selectedItem ? (
+    <>
+      <h2 className='text-xl'>{selectedItem.title}</h2>
+      <p className='mt-1 text-sm text-muted-foreground'>{selectedItem.org} · {selectedItem.location} · {formatDate(selectedItem.deadline_date)}</p>
+      <p className='mt-3 text-sm'>{selectedItem.description}</p>
+      <div className='mt-4 flex flex-wrap gap-2'>{(selectedItem.tags || []).map((entry) => <Badge key={`${selectedItem.id}-${entry}`}>{entry}</Badge>)}</div>
+      <div className='mt-4 space-y-2'>{(selectedItem.explanation?.snippets || []).map((snippet, idx) => <p key={`${selectedItem.id}-snippet-${idx}`} className='rounded-lg border bg-muted/40 p-2 text-sm [&_mark]:rounded [&_mark]:bg-accent/25 [&_mark]:px-1' dangerouslySetInnerHTML={{ __html: snippet }} />)}</div>
+      <div className='mt-5 flex flex-wrap gap-2'>
+        <Button size='sm' onClick={async () => { await api.saveOpportunity(selectedItem.id); toast('Saved opportunity') }}>Save</Button>
+        <Button size='sm' variant='secondary' onClick={async () => { await api.trackerCreate({ title_snapshot: selectedItem.title, org_snapshot: selectedItem.org, opportunity_id: selectedItem.id }); toast('Added to tracker') }}>Add to tracker</Button>
+        {[1, 2, 3, 4, 5].map((rating) => <Button key={rating} size='sm' variant='ghost' onClick={async () => { await api.rateOpportunity(selectedItem.id, rating); toast(`Rated ${rating}/5`) }}>{rating}</Button>)}
+      </div>
+    </>
+  ) : <p className='text-sm text-muted-foreground'>Select an opportunity to inspect details.</p>
+
   return (
     <Section className='space-y-4'>
       <Card className='p-4'>
@@ -200,22 +217,14 @@ export default function Opportunities() {
             })}
           </Card>
 
-          <Card className='p-4'>
-            {selectedItem ? (
-              <>
-                <h2 className='text-xl'>{selectedItem.title}</h2>
-                <p className='mt-1 text-sm text-muted-foreground'>{selectedItem.org} · {selectedItem.location} · {formatDate(selectedItem.deadline_date)}</p>
-                <p className='mt-3 text-sm'>{selectedItem.description}</p>
-                <div className='mt-4 flex flex-wrap gap-2'>{(selectedItem.tags || []).map((entry) => <Badge key={`${selectedItem.id}-${entry}`}>{entry}</Badge>)}</div>
-                <div className='mt-4 space-y-2'>{(selectedItem.explanation?.snippets || []).map((snippet, idx) => <p key={`${selectedItem.id}-snippet-${idx}`} className='rounded-lg border bg-muted/40 p-2 text-sm [&_mark]:rounded [&_mark]:bg-accent/25 [&_mark]:px-1' dangerouslySetInnerHTML={{ __html: snippet }} />)}</div>
-                <div className='mt-5 flex flex-wrap gap-2'>
-                  <Button size='sm' onClick={async () => { await api.saveOpportunity(selectedItem.id); toast('Saved opportunity') }}>Save</Button>
-                  <Button size='sm' variant='secondary' onClick={async () => { await api.trackerCreate({ title_snapshot: selectedItem.title, org_snapshot: selectedItem.org, opportunity_id: selectedItem.id }); toast('Added to tracker') }}>Add to tracker</Button>
-                  {[1, 2, 3, 4, 5].map((rating) => <Button key={rating} size='sm' variant='ghost' onClick={async () => { await api.rateOpportunity(selectedItem.id, rating); toast(`Rated ${rating}/5`) }}>{rating}</Button>)}
-                </div>
-              </>
-            ) : <p className='text-sm text-muted-foreground'>Select an opportunity to inspect details.</p>}
+          <Card className='hidden p-4 xl:block'>
+            {detailContent}
           </Card>
+
+          <Button className='xl:hidden' onClick={() => setMobileOpen(true)} disabled={!selectedItem}>View selected opportunity</Button>
+          <Drawer open={mobileOpen} title='Opportunity details' onClose={() => setMobileOpen(false)}>
+            {detailContent}
+          </Drawer>
         </div>
       ) : null}
     </Section>

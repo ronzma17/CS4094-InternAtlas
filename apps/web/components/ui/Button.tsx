@@ -12,7 +12,7 @@ export function Button({ className, variant = 'primary', size = 'md', ...props }
         variant === 'primary' && 'bg-primary text-primary-foreground hover:brightness-110',
         variant === 'secondary' && 'bg-muted text-foreground hover:bg-muted/80',
         variant === 'ghost' && 'bg-transparent text-foreground hover:bg-muted',
-        variant === 'danger' && 'bg-danger text-white hover:brightness-110',
+        variant === 'danger' && 'bg-danger text-primary-foreground hover:brightness-110',
         size === 'sm' && 'h-8 px-3 text-xs',
         size === 'md' && 'h-10 px-4 text-sm',
         size === 'lg' && 'h-11 px-5 text-sm',

@@ -116,3 +116,19 @@ def test_embed_text_is_deterministic():
     first = embed_text("Python backend distributed systems")
     second = embed_text("Python backend distributed systems")
     assert first == second
+
+
+@pytest.mark.asyncio
+async def test_get_opportunity_not_found_returns_404(authed_client):
+    response = await authed_client.get('/opportunities/999999')
+    assert response.status_code == 404
+    assert response.json()['detail'] == 'Not found'
+
+
+@pytest.mark.asyncio
+async def test_rate_opportunity_rejects_out_of_range_rating(authed_client):
+    await authed_client.post('/admin/seed')
+    opp_id = (await authed_client.get('/opportunities')).json()[0]['id']
+
+    response = await authed_client.post(f'/opportunities/{opp_id}/rate', json={'rating': 10})
+    assert response.status_code == 422
