@@ -1,6 +1,6 @@
+import hashlib
 import math
 import re
-from collections import defaultdict
 
 DIM = 128
 WORD_RE = re.compile(r"[a-zA-Z0-9+#]+")
@@ -10,10 +10,15 @@ def tokenize(text: str) -> list[str]:
     return [t.lower() for t in WORD_RE.findall(text or "")]
 
 
+def _token_bucket(token: str) -> int:
+    digest = hashlib.sha256(token.encode("utf-8")).digest()
+    return int.from_bytes(digest[:8], "big") % DIM
+
+
 def embed_text(text: str) -> list[float]:
     vec = [0.0] * DIM
     for tok in tokenize(text):
-        vec[hash(tok) % DIM] += 1.0
+        vec[_token_bucket(tok)] += 1.0
     norm = math.sqrt(sum(v * v for v in vec)) or 1.0
     return [v / norm for v in vec]
 

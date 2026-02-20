@@ -3,40 +3,40 @@
 @tailwind utilities;
 
 :root {
-  --background: 215 40% 98%;
-  --foreground: 226 39% 11%;
-  --muted: 220 18% 94%;
-  --muted-foreground: 222 16% 40%;
+  --background: 214 32% 96%;
+  --foreground: 222 34% 14%;
+  --muted: 214 22% 91%;
+  --muted-foreground: 220 14% 38%;
   --card: 0 0% 100%;
-  --card-foreground: 226 39% 11%;
-  --border: 221 21% 88%;
-  --primary: 234 84% 60%;
+  --card-foreground: 222 34% 14%;
+  --border: 217 18% 84%;
+  --primary: 220 78% 51%;
   --primary-foreground: 210 40% 98%;
-  --accent: 190 95% 46%;
+  --accent: 197 93% 46%;
   --accent-foreground: 224 71% 4%;
-  --danger: 0 84% 60%;
+  --danger: 0 78% 58%;
   --radius-xl: 1rem;
   --radius-lg: 0.75rem;
   --radius-md: 0.5rem;
-  --shadow-card: 0 10px 40px -20px rgba(14, 22, 39, 0.3);
-  --shadow-soft: 0 8px 20px -14px rgba(30, 41, 59, 0.6);
+  --shadow-card: 0 10px 30px -18px rgba(15, 23, 42, 0.45);
+  --shadow-soft: 0 8px 22px -14px rgba(30, 41, 59, 0.5);
 }
 
 .dark {
-  --background: 227 45% 8%;
-  --foreground: 210 40% 98%;
-  --muted: 226 27% 14%;
-  --muted-foreground: 214 20% 72%;
-  --card: 225 30% 12%;
-  --card-foreground: 210 40% 98%;
-  --border: 224 24% 20%;
-  --primary: 221 83% 65%;
-  --primary-foreground: 222 47% 11%;
-  --accent: 191 81% 55%;
-  --accent-foreground: 222 47% 11%;
-  --danger: 0 72% 61%;
-  --shadow-card: 0 14px 30px -15px rgba(0, 0, 0, 0.75);
-  --shadow-soft: 0 10px 24px -14px rgba(0, 0, 0, 0.7);
+  --background: 224 30% 8%;
+  --foreground: 214 40% 96%;
+  --muted: 224 19% 15%;
+  --muted-foreground: 215 17% 72%;
+  --card: 224 24% 12%;
+  --card-foreground: 214 40% 96%;
+  --border: 222 16% 24%;
+  --primary: 213 89% 66%;
+  --primary-foreground: 226 55% 10%;
+  --accent: 190 89% 57%;
+  --accent-foreground: 226 55% 10%;
+  --danger: 0 75% 63%;
+  --shadow-card: 0 20px 35px -22px rgba(0, 0, 0, 0.95);
+  --shadow-soft: 0 18px 30px -20px rgba(0, 0, 0, 0.95);
 }
 
 * { @apply border-border; }
@@ -44,7 +44,8 @@
 html, body { height: 100%; }
 
 body {
-  @apply bg-background text-foreground antialiased;
+  @apply bg-background text-foreground antialiased transition-colors duration-200;
+  background-image: radial-gradient(circle at top right, hsl(var(--muted) / 0.45), transparent 40%);
 }
 
 @layer base {

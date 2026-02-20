@@ -7,6 +7,7 @@ from sqlalchemy.pool import StaticPool
 
 os.environ["DATABASE_URL"] = "sqlite+aiosqlite://"
 os.environ["SYNC_DATABASE_URL"] = "sqlite://"
+os.environ["PASSLIB_BUILTIN_BCRYPT"] = "enabled"
 
 from app.core.db import get_db
 from app.main import app
@@ -14,7 +15,7 @@ from app.models.base import Base
 
 
 @pytest.fixture
-async def client():
+async def db_session():
     engine = create_async_engine(
         "sqlite+aiosqlite://",
         connect_args={"check_same_thread": False},
@@ -24,9 +25,16 @@ async def client():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
+    async with session_maker() as session:
+        yield session
+
+    await engine.dispose()
+
+
+@pytest.fixture
+async def client(db_session):
     async def override_db():
-        async with session_maker() as session:
-            yield session
+        yield db_session
 
     app.dependency_overrides[get_db] = override_db
     transport = ASGITransport(app=app)
@@ -34,7 +42,6 @@ async def client():
         yield ac
 
     app.dependency_overrides.clear()
-    await engine.dispose()
 
 
 async def register_and_login(client: AsyncClient, email: str = "user@test.com", password: str = "password"):
