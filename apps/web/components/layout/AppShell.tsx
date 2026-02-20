@@ -7,12 +7,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { api } from '../../lib/api'
 import { cn } from '../../lib/utils'
 import { ThemeToggle } from '../theme/ThemeToggle'
+import { Avatar } from '../ui/Avatar'
 import { Button } from '../ui/Button'
 import { Card, Container } from '../ui/Card'
 import { Input } from '../ui/Input'
 
 const navItems = [
-  { href: '/opportunities', label: 'Opportunities', icon: '◧' },
+  { href: '/opportunities', label: 'Home', icon: '⌂' },
   { href: '/tracker', label: 'Tracker', icon: '◎' },
   { href: '/insights', label: 'Insights', icon: '◩' },
   { href: '/profile', label: 'Profile', icon: '◉' },
@@ -32,18 +33,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     () => (
       <div className='space-y-4'>
         <Card className='p-4'>
-          <p className='text-sm font-semibold'>Tips</p>
+          <p className='text-sm font-semibold'>Network snapshot</p>
           <ul className='mt-2 space-y-2 text-sm text-muted-foreground'>
-            <li>Tailor profile skills for better match scores.</li>
-            <li>Rate opportunities to improve relevance.</li>
-            <li>Use tracker stages weekly for momentum.</li>
+            <li>3 profiles viewed this week.</li>
+            <li>2 saved opportunities matched your top skills.</li>
+            <li>Keep applying to improve shortlist confidence.</li>
           </ul>
         </Card>
         <Card className='p-4'>
           <p className='text-sm font-semibold'>Trending tags</p>
           <div className='mt-3 flex flex-wrap gap-2 text-xs'>
             {['backend', 'ml', 'frontend', 'remote'].map((tag) => (
-              <span key={tag} className='rounded-full border bg-muted/70 px-2 py-1'>#{tag}</span>
+              <span key={tag} className='rounded-full border bg-muted/70 px-2 py-1 text-muted-foreground'>#{tag}</span>
             ))}
           </div>
         </Card>
@@ -58,36 +59,29 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <Container className='flex items-center gap-3 py-3'>
           <button className='focus-ring rounded-md border bg-background px-2 py-1 lg:hidden' aria-label='Open navigation' onClick={() => setOpen(true)}>☰</button>
           <Link href='/opportunities' className='text-lg font-semibold tracking-tight'>InternAtlas</Link>
-          <Input aria-label='Global search' placeholder='Search opportunities, tags, or companies' className='hidden max-w-xl flex-1 bg-background md:block' />
-          <nav className='hidden items-center gap-1 lg:flex'>
-            {navItems.map((item) => {
-              const active = path?.startsWith(item.href)
-              return (
-                <Link key={item.href} href={item.href} className={cn('focus-ring rounded-md px-3 py-2 text-sm transition', active ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted/70 hover:text-foreground')}>
-                  <span className='mr-1' aria-hidden>{item.icon}</span>
-                  {item.label}
-                </Link>
-              )
-            })}
-          </nav>
+          <Input aria-label='Global search' placeholder='Search people, opportunities, and tags' className='hidden max-w-xl flex-1 bg-background md:block' />
           <ThemeToggle />
+          <Avatar>IA</Avatar>
         </Container>
       </header>
 
-      <Container className='grid gap-4 py-6 lg:grid-cols-[240px_minmax(0,1fr)_290px]'>
+      <Container className='grid gap-4 py-6 lg:grid-cols-[230px_minmax(0,1fr)_290px]'>
         <aside className='hidden space-y-4 lg:block'>
-          <Card className='p-4'>
-            <p className='text-xs uppercase text-muted-foreground'>Welcome</p>
-            <p className='mt-1 font-semibold'>Your internship dashboard</p>
-            <p className='mt-2 text-sm text-muted-foreground'>{isAdmin ? 'Admin access enabled' : 'Candidate mode'}</p>
+          <Card className='p-3'>
+            <nav className='space-y-1'>
+              {navItems.map((item) => {
+                const active = path?.startsWith(item.href)
+                return (
+                  <Link key={item.href} href={item.href} className={cn('focus-ring block rounded-md px-3 py-2 text-sm transition', active ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground')}>
+                    <span className='mr-2' aria-hidden>{item.icon}</span>{item.label}
+                  </Link>
+                )
+              })}
+            </nav>
           </Card>
           <Card className='p-4'>
-            <p className='text-sm font-semibold'>Quick links</p>
-            <div className='mt-2 space-y-1 text-sm'>
-              <Link href='/opportunities?saved_only=true' className='block rounded-md px-2 py-1 hover:bg-muted'>Saved opportunities</Link>
-              <Link href='/tracker' className='block rounded-md px-2 py-1 hover:bg-muted'>Application tracker</Link>
-              <Link href='/profile' className='block rounded-md px-2 py-1 hover:bg-muted'>Edit profile</Link>
-            </div>
+            <p className='text-xs uppercase text-muted-foreground'>Workspace mode</p>
+            <p className='mt-1 font-semibold'>{isAdmin ? 'Admin enabled' : 'Candidate mode'}</p>
           </Card>
         </aside>
 
@@ -96,7 +90,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </Container>
 
       {open ? (
-        <div className='fixed inset-0 z-50 bg-black/45 lg:hidden'>
+        <div className='fixed inset-0 z-50 bg-foreground/45 lg:hidden'>
           <aside className='h-full w-72 space-y-3 border-r bg-card p-4'>
             <div className='flex items-center justify-between'>
               <p className='font-semibold'>Navigation</p>
