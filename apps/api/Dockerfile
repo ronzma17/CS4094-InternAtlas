@@ -1,6 +1,14 @@
-FROM python:3.11-slim
+FROM python:3.11-slim-bookworm
+
 WORKDIR /app
-RUN apt-get update && apt-get install -y build-essential && rm -rf /var/lib/apt/lists/*
-COPY pyproject.toml /app/
-RUN pip install --upgrade pip && pip install -e .
+
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1
+
+# Copy the whole API so editable install can see the package
 COPY . /app
+
+RUN ["pip", "install", "--upgrade", "pip"]
+RUN ["pip", "install", "-e", "."]
+
+# Runtime command comes from docker-compose
