@@ -23,8 +23,8 @@ async def compute_krs(session):
         tts10 = (saved[9].created_at - first_search.created_at).total_seconds()
 
     return {
-        "time_to_shortlist_10_seconds": tts10,
-        "percent_applications_tracked_in_app": round(pct_tracked, 2),
-        "p95_match_latency_ms": p95,
-        "recommendation_relevance_avg": round(float(ratings_avg), 2),
+        "time_to_shortlist_10": tts10,
+        "tracked_pct": round(pct_tracked, 2),
+        "match_latency_p95": p95,
+        "relevance_avg": round(float(ratings_avg), 2),
     }

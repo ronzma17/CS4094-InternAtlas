@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db import get_db
-from app.models.models import Application, Event
+from app.models.models import Application, Event, Opportunity
 from app.routers.deps import get_current_user
 from app.schemas.common import AppIn, AppPatch, StagePatch
 
@@ -16,12 +16,27 @@ async def list_apps(user=Depends(get_current_user), db: AsyncSession = Depends(g
 
 @router.post("/applications")
 async def create_app(payload: AppIn, user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    title_snapshot = payload.title_snapshot
+    org_snapshot = payload.org_snapshot
+    url_snapshot = payload.url_snapshot
+
+    if payload.opportunity_id:
+        opp = (await db.execute(select(Opportunity).where(Opportunity.id == payload.opportunity_id))).scalar_one_or_none()
+        if not opp:
+            raise HTTPException(status_code=404, detail="Opportunity not found")
+        title_snapshot = title_snapshot or opp.title
+        org_snapshot = org_snapshot or opp.org
+        url_snapshot = url_snapshot or opp.url
+
+    if not title_snapshot or not org_snapshot:
+        raise HTTPException(status_code=422, detail="title_snapshot and org_snapshot are required")
+
     a = Application(
         user_id=user.id,
         opportunity_id=payload.opportunity_id,
-        title_snapshot=payload.title_snapshot,
-        org_snapshot=payload.org_snapshot,
-        url_snapshot=payload.url_snapshot,
+        title_snapshot=title_snapshot,
+        org_snapshot=org_snapshot,
+        url_snapshot=url_snapshot,
         stage=payload.stage,
         notes=payload.notes,
         deadline_date=payload.deadline,

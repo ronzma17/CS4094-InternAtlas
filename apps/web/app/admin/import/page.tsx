@@ -1,12 +1,27 @@
 'use client'
+
 import { useState } from 'react'
-export default function AdminImport(){
-  const [msg,setMsg]=useState('')
-  async function runSeed(){ const r=await fetch('/api/admin/seed',{method:'POST',credentials:'include'}); setMsg(await r.text()) }
-  async function upload(file: File){
-    const fd = new FormData(); fd.append('file', file)
-    const r = await fetch('/api/admin/import',{method:'POST',body:fd,credentials:'include'})
-    setMsg(await r.text())
-  }
-  return <div className='space-y-2'><h1 className='text-xl font-bold'>Admin Import</h1><button onClick={runSeed}>Run Seed</button><input type='file' onChange={e=>e.target.files&&upload(e.target.files[0])}/><pre>{msg}</pre></div>
+import { api } from '../../../lib/api'
+import { Button } from '../../../components/ui/Button'
+import { Card } from '../../../components/ui/Card'
+import { Input } from '../../../components/ui/Input'
+
+export default function AdminImport() {
+  const [result, setResult] = useState<any>(null)
+
+  return (
+    <Card className='space-y-4'>
+      <div>
+        <h1 className='text-2xl font-semibold'>Admin import</h1>
+        <p className='text-sm text-slate-500'>Seed the default dataset or upload additional opportunities.</p>
+      </div>
+      <Button onClick={async () => setResult(await api.runSeed())}>Run seed import</Button>
+      <Input type='file' onChange={async (event) => {
+        const file = event.target.files?.[0]
+        if (!file) return
+        setResult(await api.importFile(file))
+      }} />
+      {result ? <pre className='max-h-80 overflow-auto rounded-lg bg-slate-900 p-3 text-xs text-white'>{JSON.stringify(result, null, 2)}</pre> : null}
+    </Card>
+  )
 }
