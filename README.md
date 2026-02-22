@@ -1,6 +1,6 @@
 # InternAtlas
 
-InternAtlas is a monorepo capstone app with a Next.js frontend, FastAPI backend, and Postgres + pgvector.
+InternAtlas is a capstone app with a Next.js frontend, FastAPI backend, and Postgres + pgvector.
 
 ## Docker quick start
 
