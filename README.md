@@ -42,3 +42,11 @@ make test
 ## Notes
 - Vector backend defaults to `auto` (pgvector if available, JSON fallback in app code).
 - First registered user is admin.
+
+## Manual Acceptance Checklist (v2)
+- [ ] `make dev` works cleanly; web + api + db all stay running.
+- [ ] Signup -> edit profile -> opportunities list shows results -> open detail -> see explanation -> save -> unsave -> rate.
+- [ ] Application tracker -> create -> insights shows updated stats.
+- [ ] Insights -> export CSV downloads correctly.
+- [ ] No 404s for buttons/links. No placeholder features.
+- [ ] UI looks modern and consistent in light + dark.

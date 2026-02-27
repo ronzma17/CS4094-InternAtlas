@@ -30,6 +30,7 @@ class OpportunityOut(BaseModel):
     url: str | None
     match_score: float
     explanation: dict
+    is_saved: bool = False
 
 
 class AppIn(BaseModel):

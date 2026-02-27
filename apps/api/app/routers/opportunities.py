@@ -29,6 +29,9 @@ async def _explain(db, user, opps):
         await db.commit()
     user_emb = embed_text(user_profile_text(profile))
     user_skills = profile.skills_json or []
+    
+    saved_ids = set((await db.execute(select(SavedOpportunity.opportunity_id).where(SavedOpportunity.user_id == user.id))).scalars().all())
+
     out = []
     for o in opps:
         sim = cosine(user_emb, o.embedding_vector or [])
@@ -44,6 +47,7 @@ async def _explain(db, user, opps):
             "url": o.url,
             "match_score": normalize_score(sim),
             "explanation": {"overlap_skills": overlap, "snippets": snippets(o.description, overlap)},
+            "is_saved": o.id in saved_ids
         })
     return sorted(out, key=lambda x: x["match_score"], reverse=True)
 
@@ -101,6 +105,16 @@ async def save_opp(opp_id: int, user=Depends(get_current_user), db: AsyncSession
     return {"ok": True}
 
 
+@router.post("/{opp_id}/unsave")
+async def unsave_opp(opp_id: int, user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    existing = (await db.execute(select(SavedOpportunity).where(SavedOpportunity.user_id == user.id, SavedOpportunity.opportunity_id == opp_id))).scalar_one_or_none()
+    if existing:
+        await db.delete(existing)
+        db.add(Event(user_id=user.id, event_type="unsaved", payload_json={"opportunity_id": opp_id}))
+        await db.commit()
+    return {"ok": True}
+
+
 @router.post("/{opp_id}/rate")
 async def rate_opp(opp_id: int, payload: RatingIn, user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     rr = (await db.execute(select(RelevanceRating).where(RelevanceRating.user_id == user.id, RelevanceRating.opportunity_id == opp_id))).scalar_one_or_none()
@@ -108,5 +122,7 @@ async def rate_opp(opp_id: int, payload: RatingIn, user=Depends(get_current_user
         rr.rating = payload.rating
     else:
         db.add(RelevanceRating(user_id=user.id, opportunity_id=opp_id, rating=payload.rating))
+    
+    db.add(Event(user_id=user.id, event_type="rated", payload_json={"opportunity_id": opp_id, "rating": payload.rating}))
     await db.commit()
     return {"ok": True}
