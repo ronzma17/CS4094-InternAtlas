@@ -7,8 +7,8 @@ class Settings(BaseSettings):
     jwt_secret: str = "devsecret"
     jwt_algorithm: str = "HS256"
     vector_backend: str = "auto"
+    gemini_api_key: str = ""
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
-
+    model_config = SettingsConfigDict(env_file="../../.env", extra="ignore")
 
 settings = Settings()
