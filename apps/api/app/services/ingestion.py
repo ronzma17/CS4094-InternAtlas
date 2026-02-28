@@ -34,6 +34,8 @@ def _norm_row(r: dict) -> dict:
     }
 
 
+from app.services.ml import extract_tags
+
 async def import_rows(session: AsyncSession, rows: list[dict]) -> dict:
     inserted = 0
     updated = 0

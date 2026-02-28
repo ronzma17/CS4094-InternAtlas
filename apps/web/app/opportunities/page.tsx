@@ -10,6 +10,7 @@ import { Button } from '../../components/ui/Button'
 import { Card, Section } from '../../components/ui/Card'
 import { Drawer } from '../../components/ui/Drawer'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { Modal } from '../../components/ui/Modal'
 import { Input } from '../../components/ui/Input'
 import { Select } from '../../components/ui/Select'
 import { Skeleton } from '../../components/ui/Skeleton'
@@ -48,6 +49,12 @@ export default function Opportunities() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
   const [detailsLoading, setDetailsLoading] = useState(false)
+  const [coverLetterOpen, setCoverLetterOpen] = useState(false)
+  const [coverLetterText, setCoverLetterText] = useState('')
+  const [coverLetterLoading, setCoverLetterLoading] = useState(false)
+  const [interviewPrepOpen, setInterviewPrepOpen] = useState(false)
+  const [interviewPrepData, setInterviewPrepData] = useState<any>(null)
+  const [interviewPrepLoading, setInterviewPrepLoading] = useState(false)
   const [error, setError] = useState('')
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -160,6 +167,50 @@ export default function Opportunities() {
     }
   }
 
+  const generateAIMatch = async (id: number) => {
+    try {
+      setDetailsLoading(true)
+      toast("Generating deep AI match analysis...")
+      const data = await api.mlMatch(id)
+      setItems(items.map(i => i.id === id ? { ...i, match_score: data.match_score, explanation: data.explanation } : i))
+      toast('AI Analysis Complete')
+    } catch (e: any) {
+      toast(e.message || 'Failed to generate AI match')
+    } finally {
+      setDetailsLoading(false)
+    }
+  }
+
+  const handleCoverLetter = async () => {
+    if (!selectedItem) return;
+    setCoverLetterOpen(true)
+    setCoverLetterLoading(true)
+    setCoverLetterText('')
+    try {
+      const data = await api.generateCoverLetter(selectedItem.id)
+      setCoverLetterText(data.cover_letter)
+    } catch (e: any) {
+      setCoverLetterText(e.message || "Failed to generate cover letter.")
+    } finally {
+      setCoverLetterLoading(false)
+    }
+  }
+
+  const handleInterviewPrep = async () => {
+    if (!selectedItem) return;
+    setInterviewPrepOpen(true)
+    setInterviewPrepLoading(true)
+    setInterviewPrepData(null)
+    try {
+      const data = await api.generateInterviewPrep(selectedItem.id)
+      setInterviewPrepData(data.questions)
+    } catch (e: any) {
+      toast(e.message || "Failed to generate interview prep.")
+    } finally {
+      setInterviewPrepLoading(false)
+    }
+  }
+
   const detailContent = selectedItem ? (
     <div className="flex flex-col h-[calc(100vh-140px)]">
       <div className="flex-1 overflow-y-auto pr-2 pb-24">
@@ -178,6 +229,12 @@ export default function Opportunities() {
             <span className="text-lg">✨</span>
             <h3 className="font-semibold text-primary">Why this is a match</h3>
             <Badge className="ml-auto bg-primary text-primary-foreground">{selectedItem.match_score}% Score</Badge>
+          </div>
+
+          <div className="mb-4 flex justify-end">
+            <Button variant="outline" size="sm" className="h-7 text-xs bg-background" onClick={() => generateAIMatch(selectedItem.id)} disabled={detailsLoading}>
+              {detailsLoading ? "Analyzing..." : "Refresh with deeper AI Analysis"}
+            </Button>
           </div>
 
           <div className="mb-4">
@@ -218,7 +275,7 @@ export default function Opportunities() {
 
       {/* Sticky Action Card */}
       <div className="absolute bottom-4 left-4 right-4 bg-card/95 backdrop-blur shadow-soft border rounded-xl p-4 flex flex-col gap-3">
-        <div className="flex gap-2 w-full">
+        <div className="flex gap-2 w-full flex-wrap">
           <Button
             className="flex-1 font-semibold shadow-sm"
             onClick={async () => { await api.trackerCreate({ title_snapshot: selectedItem.title, org_snapshot: selectedItem.org, opportunity_id: selectedItem.id }); toast('Added to tracker') }}
@@ -227,10 +284,16 @@ export default function Opportunities() {
           </Button>
           <Button
             variant={selectedItem.is_saved ? "secondary" : "outline"}
-            className={selectedItem.is_saved ? "text-primary bg-primary/10 hover:bg-primary/20" : ""}
+            className={selectedItem.is_saved ? "text-primary bg-primary/10 hover:bg-primary/20 flex-1" : "flex-1"}
             onClick={() => toggleSave(selectedItem)}
           >
             {selectedItem.is_saved ? '★ Saved' : '☆ Save'}
+          </Button>
+          <Button variant="outline" className="flex-1" onClick={handleCoverLetter}>
+            📝 Draft Cover Letter
+          </Button>
+          <Button variant="outline" className="flex-1 bg-background" onClick={handleInterviewPrep}>
+            🎯 Interview Prep
           </Button>
         </div>
 
@@ -269,6 +332,18 @@ export default function Opportunities() {
             <Input className="pl-9 h-10 border-transparent bg-muted/40 hover:bg-muted/60 focus-visible:bg-background transition-colors" value={tag} onChange={(e) => setTag(e.target.value)} placeholder='Tag (e.g. backend)' aria-label='Tag filter' />
           </div>
           <Button className="h-10 px-6 font-semibold shadow-sm" onClick={() => load()}>Search</Button>
+          {isAdmin && (
+            <Button variant="secondary" className="h-10 px-6 font-semibold shadow-sm ml-2" onClick={() => {
+              const url = prompt("Enter job posting URL to extract with AI:");
+              if (url) {
+                setDetailsLoading(true);
+                toast("Extracting role details using ML...");
+                api.scrapeUrl(url).then(() => { toast('Opportunity scraped successfully!'); load(); })
+                  .catch(e => toast(e.message))
+                  .finally(() => setDetailsLoading(false));
+              }
+            }}>✨ AI Scrape</Button>
+          )}
         </div>
 
         <div className='px-2 pb-2 pt-1 flex flex-wrap items-center gap-3 border-t border-border/50 mt-1'>
@@ -321,8 +396,8 @@ export default function Opportunities() {
                 <Card
                   key={item.id}
                   className={`relative p-5 text-left cursor-pointer transition-all duration-200 border group ${active
-                      ? 'border-primary/50 shadow-md bg-muted/20 ring-1 ring-primary/20'
-                      : 'hover:border-primary/30 hover:shadow-soft bg-card border-border'
+                    ? 'border-primary/50 shadow-md bg-muted/20 ring-1 ring-primary/20'
+                    : 'hover:border-primary/30 hover:shadow-soft bg-card border-border'
                     }`}
                   onClick={() => { setSelected(item.id); syncRoute(item.id) }}
                 >
@@ -381,6 +456,58 @@ export default function Opportunities() {
           </Drawer>
         </div>
       ) : null}
+
+      <Modal open={coverLetterOpen} title="AI Cover Letter Draft" onClose={() => setCoverLetterOpen(false)}>
+        <div className="p-4 space-y-4">
+          {coverLetterLoading ? (
+            <div className="flex flex-col gap-3">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-[90%]" />
+              <Skeleton className="h-4 w-[80%]" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-[85%]" />
+            </div>
+          ) : (
+            <div className="whitespace-pre-wrap text-sm text-foreground/90 font-medium overflow-y-auto max-h-[60vh]">
+              {coverLetterText}
+            </div>
+          )}
+          <div className="flex justify-end pt-4 border-t border-border mt-4">
+            <Button onClick={() => { navigator.clipboard.writeText(coverLetterText); toast('Copied to clipboard!') }} disabled={coverLetterLoading || !coverLetterText}>
+              Copy to Clipboard
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal open={interviewPrepOpen} title="AI Interview Prep" onClose={() => setInterviewPrepOpen(false)}>
+        <div className="p-4 space-y-4 max-h-[70vh] overflow-y-auto">
+          {interviewPrepLoading ? (
+            <div className="flex flex-col gap-4">
+              <Skeleton className="h-6 w-3/4" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
+              <Skeleton className="h-6 w-3/4 mt-4" />
+              <Skeleton className="h-4 w-full" />
+            </div>
+          ) : interviewPrepData ? (
+            <div className="space-y-6">
+              {interviewPrepData.map((q: any, i: number) => (
+                <div key={i} className="space-y-2">
+                  <h4 className="font-semibold text-foreground">Q{i + 1}: {q.question}</h4>
+                  <ul className="list-disc pl-5 space-y-1">
+                    {q.talking_points.map((pt: string, j: number) => (
+                      <li key={j} className="text-sm text-muted-foreground">{pt}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">No data available.</p>
+          )}
+        </div>
+      </Modal>
     </div>
   )
 }

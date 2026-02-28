@@ -41,6 +41,7 @@ export const api = {
   listOpportunities: (query: string) => request<any[]>(`/opportunities${query}`),
   getOpportunity: (id: string) => request<any>(`/opportunities/${id}`),
   saveOpportunity: (id: number | string) => request(`/opportunities/${id}/save`, { method: 'POST' }),
+  unsaveOpportunity: (id: number | string) => request(`/opportunities/${id}/unsave`, { method: 'POST' }),
   rateOpportunity: (id: number | string, rating: number) => request(`/opportunities/${id}/rate`, { method: 'POST', body: JSON.stringify({ rating }) }),
   trackerList: () => request<any[]>('/tracker/applications'),
   trackerCreate: (body: any) => request<any>('/tracker/applications', { method: 'POST', body: JSON.stringify(body) }),
@@ -57,4 +58,8 @@ export const api = {
     formData.append('file', file)
     return request<any>('/admin/import', { method: 'POST', body: formData })
   },
+  scrapeUrl: (url: string) => request<any>('/admin/scrape', { method: 'POST', body: JSON.stringify({ url }) }),
+  mlMatch: (id: number | string) => request<any>(`/opportunities/${id}/ml-match`),
+  generateCoverLetter: (id: number | string) => request<any>(`/opportunities/${id}/cover-letter`),
+  generateInterviewPrep: (id: number | string) => request<any>(`/opportunities/${id}/interview-prep`),
 }

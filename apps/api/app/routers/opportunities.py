@@ -1,3 +1,5 @@
+from __future__ import annotations
+from __future__ import annotations
 import time
 from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -52,13 +54,15 @@ async def _explain(db, user, opps):
     return sorted(out, key=lambda x: x["match_score"], reverse=True)
 
 
+from typing import Optional
+
 @router.get("")
 async def list_opps(
     request: Request,
-    query: str | None = None,
-    tag: str | None = None,
-    location: str | None = None,
-    deadline_before: date | None = None,
+    query: Optional[str] = None,
+    tag: Optional[str] = None,
+    location: Optional[str] = None,
+    deadline_before: Optional[date] = None,
     saved_only: bool = False,
     user=Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -126,3 +130,55 @@ async def rate_opp(opp_id: int, payload: RatingIn, user=Depends(get_current_user
     db.add(Event(user_id=user.id, event_type="rated", payload_json={"opportunity_id": opp_id, "rating": payload.rating}))
     await db.commit()
     return {"ok": True}
+
+from app.models.models import Profile
+
+@router.get("/{opp_id}/ml-match")
+async def ml_match(opp_id: int, user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    o = (await db.execute(select(Opportunity).where(Opportunity.id == opp_id))).scalar_one_or_none()
+    if not o:
+        raise HTTPException(status_code=404, detail="Not found")
+    profile = (await db.execute(select(Profile).where(Profile.user_id == user.id))).scalar_one_or_none()
+    from app.services.matching import user_profile_text, opportunity_text
+    from app.services.ml import match_resume
+    
+    p_text = user_profile_text(profile) if profile else ""
+    o_text = opportunity_text(o)
+    
+    try:
+        data = await match_resume(p_text, o_text)
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/{opp_id}/cover-letter")
+async def cover_letter(opp_id: int, user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    o = (await db.execute(select(Opportunity).where(Opportunity.id == opp_id))).scalar_one_or_none()
+    if not o:
+        raise HTTPException(status_code=404, detail="Not found")
+    profile = (await db.execute(select(Profile).where(Profile.user_id == user.id))).scalar_one_or_none()
+    from app.services.matching import user_profile_text, opportunity_text
+    from app.services.ml import generate_cover_letter
+    p_text = user_profile_text(profile) if profile else ""
+    o_text = opportunity_text(o)
+    try:
+        data = await generate_cover_letter(p_text, o_text)
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/{opp_id}/interview-prep")
+async def interview_prep(opp_id: int, user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    o = (await db.execute(select(Opportunity).where(Opportunity.id == opp_id))).scalar_one_or_none()
+    if not o:
+        raise HTTPException(status_code=404, detail="Not found")
+    profile = (await db.execute(select(Profile).where(Profile.user_id == user.id))).scalar_one_or_none()
+    from app.services.matching import user_profile_text, opportunity_text
+    from app.services.ml import generate_interview_prep
+    p_text = user_profile_text(profile) if profile else ""
+    o_text = opportunity_text(o)
+    try:
+        data = await generate_interview_prep(p_text, o_text)
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))

@@ -23,7 +23,9 @@ dependencies = [
   "pytest>=8.2",
   "pytest-asyncio>=0.23",
   "aiosqlite>=0.20",
-  "email-validator>=2.2"
+  "email-validator>=2.2",
+  "google-genai",
+  "beautifulsoup4"
 ]
 
 [tool.setuptools.packages.find]

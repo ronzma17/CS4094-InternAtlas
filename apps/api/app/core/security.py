@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from typing import Optional
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 
@@ -20,7 +21,7 @@ def create_token(user_id: int) -> str:
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
 
-def decode_token(token: str) -> int | None:
+def decode_token(token: str) -> Optional[int]:
     try:
         data = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
         return int(data["sub"])

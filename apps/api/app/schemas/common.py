@@ -1,4 +1,6 @@
+from __future__ import annotations
 from datetime import date, datetime
+from typing import Optional
 from pydantic import BaseModel, EmailStr, Field
 from app.models.models import StageEnum
 
@@ -12,7 +14,7 @@ class ProfileIn(BaseModel):
     skills: list[str] = []
     interests: str = ""
     locations: list[str] = []
-    grad_year: int | None = None
+    grad_year: Optional[int] = None
 
 
 class ProfileOut(ProfileIn):
@@ -26,28 +28,28 @@ class OpportunityOut(BaseModel):
     description: str
     location: str
     tags: list[str]
-    deadline_date: date | None
-    url: str | None
+    deadline_date: Optional[date]
+    url: Optional[str]
     match_score: float
     explanation: dict
     is_saved: bool = False
 
 
 class AppIn(BaseModel):
-    opportunity_id: int | None = None
-    title_snapshot: str | None = None
-    org_snapshot: str | None = None
-    url_snapshot: str | None = None
+    opportunity_id: Optional[int] = None
+    title_snapshot: Optional[str] = None
+    org_snapshot: Optional[str] = None
+    url_snapshot: Optional[str] = None
     stage: StageEnum = StageEnum.Interested
     notes: str = ""
-    deadline: date | None = None
-    date_applied: date | None = None
+    deadline: Optional[date] = None
+    date_applied: Optional[date] = None
 
 
 class AppPatch(BaseModel):
-    notes: str | None = None
-    deadline: date | None = None
-    date_applied: date | None = None
+    notes: Optional[str] = None
+    deadline: Optional[date] = None
+    date_applied: Optional[date] = None
 
 
 class StagePatch(BaseModel):

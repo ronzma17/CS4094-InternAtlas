@@ -49,3 +49,18 @@ async def seed(user=Depends(get_current_user), db: AsyncSession = Depends(get_db
     require_admin(user)
     rows = json.loads(resolve_seed_path().read_text())
     return await import_rows(db, rows)
+
+from pydantic import BaseModel
+
+class ScrapeRequest(BaseModel):
+    url: str
+
+@router.post("/scrape")
+async def scrape_url(payload: ScrapeRequest, user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    require_admin(user)
+    from app.services.ml import scrape_opportunity
+    try:
+        data = await scrape_opportunity(payload.url)
+        return await import_rows(db, [data])
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))

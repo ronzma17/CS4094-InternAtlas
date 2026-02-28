@@ -1,7 +1,7 @@
 import { ButtonHTMLAttributes } from 'react'
 import { cn } from '../../lib/utils'
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'danger'
+type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline'
 type Size = 'sm' | 'md' | 'lg' | 'icon'
 
 export function Button({ className, variant = 'primary', size = 'md', ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; size?: Size }) {
@@ -13,6 +13,7 @@ export function Button({ className, variant = 'primary', size = 'md', ...props }
         variant === 'secondary' && 'bg-muted text-foreground hover:bg-muted/80',
         variant === 'ghost' && 'bg-transparent text-foreground hover:bg-muted',
         variant === 'danger' && 'bg-danger text-primary-foreground hover:brightness-110',
+        variant === 'outline' && 'border border-input bg-background hover:bg-muted text-foreground',
         size === 'sm' && 'h-8 px-3 text-xs',
         size === 'md' && 'h-10 px-4 text-sm',
         size === 'lg' && 'h-11 px-5 text-sm',
