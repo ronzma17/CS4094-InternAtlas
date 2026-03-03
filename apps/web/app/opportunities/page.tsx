@@ -318,22 +318,22 @@ export default function Opportunities() {
   return (
     <div className='space-y-4 max-w-7xl mx-auto'>
       <Card className='p-2 mb-4 shadow-sm border-border bg-card'>
-        <div className='flex flex-wrap md:flex-nowrap gap-2 p-2'>
-          <div className="relative flex-1 min-w-[200px]">
+        <div className='flex flex-wrap gap-2 p-2'>
+          <div className="relative w-full sm:flex-1 min-w-0 sm:min-w-[200px]">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50 text-sm">🔍</span>
             <Input className="pl-9 h-10 border-transparent bg-muted/40 hover:bg-muted/60 focus-visible:bg-background transition-colors" value={q} onChange={(e) => setQ(e.target.value)} placeholder='Search roles, orgs, keywords' aria-label='Opportunity search query' />
           </div>
-          <div className="relative flex-1 min-w-[150px]">
+          <div className="relative w-full sm:flex-1 min-w-0 sm:min-w-[150px]">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50 text-sm">📍</span>
             <Input className="pl-9 h-10 border-transparent bg-muted/40 hover:bg-muted/60 focus-visible:bg-background transition-colors" value={location} onChange={(e) => setLocation(e.target.value)} placeholder='City, state, remote' aria-label='Location filter' />
           </div>
-          <div className="relative flex-1 min-w-[150px] hidden md:block">
+          <div className="relative w-full sm:flex-1 min-w-0 sm:min-w-[150px] hidden md:block">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50 text-sm">🏷️</span>
             <Input className="pl-9 h-10 border-transparent bg-muted/40 hover:bg-muted/60 focus-visible:bg-background transition-colors" value={tag} onChange={(e) => setTag(e.target.value)} placeholder='Tag (e.g. backend)' aria-label='Tag filter' />
           </div>
-          <Button className="h-10 px-6 font-semibold shadow-sm" onClick={() => load()}>Search</Button>
+          <Button className="h-10 px-6 font-semibold shadow-sm w-full sm:w-auto" onClick={() => load()}>Search</Button>
           {isAdmin && (
-            <Button variant="secondary" className="h-10 px-6 font-semibold shadow-sm ml-2" onClick={() => {
+            <Button variant="secondary" className="h-10 px-6 font-semibold shadow-sm w-full sm:w-auto" onClick={() => {
               const url = prompt("Enter job posting URL to extract with AI:");
               if (url) {
                 setDetailsLoading(true);
