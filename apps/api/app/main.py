@@ -1,4 +1,5 @@
 import os
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,7 +9,22 @@ from app.models.base import Base
 from app.routers import admin, auth, insights, metrics, opportunities, profile, tracker
 from app.routers.admin import seed_if_empty
 
-app = FastAPI(title="InternAtlas API")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    if os.getenv("AUTO_SEED", "false").lower() == "true":
+        async with SessionLocal() as session:
+            await seed_if_empty(session)
+    
+    yield
+    # Shutdown (nothing needed)
+
+
+app = FastAPI(title="InternAtlas API", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
@@ -16,16 +32,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@app.on_event("startup")
-async def startup():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
-    if os.getenv("AUTO_SEED", "false").lower() == "true":
-        async with SessionLocal() as session:
-            await seed_if_empty(session)
 
 
 app.include_router(auth.router)
