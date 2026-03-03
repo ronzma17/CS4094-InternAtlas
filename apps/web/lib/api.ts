@@ -9,6 +9,28 @@ export class ApiError extends Error {
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? '/api'
 
+function formatApiError(payload: any): string {
+  if (!payload) return 'Request failed'
+  if (typeof payload === 'string') return payload
+
+  const detail = payload.detail
+
+  if (typeof detail === 'string') return detail
+
+  if (Array.isArray(detail)) {
+    return detail
+      .map((d) => {
+        const field = Array.isArray(d?.loc) ? d.loc[d.loc.length - 1] : undefined
+        const msg = d?.msg ?? 'Invalid input'
+        return field ? `${field}: ${msg}` : msg
+      })
+      .join('; ')
+  }
+
+  if (typeof payload.message === 'string') return payload.message
+  return 'Request failed'
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     ...init,
@@ -25,9 +47,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const payload = contentType.includes('application/json') && text ? JSON.parse(text) : text
 
   if (!res.ok) {
-    const message = typeof payload === 'string' ? payload : payload?.detail || 'Request failed'
-    throw new ApiError(message, res.status)
+	throw new ApiError(formatApiError(payload), res.status)
   }
+
   return payload as T
 }
 
