@@ -2,13 +2,13 @@
 
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { api } from '../../lib/api'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { Input } from '../../components/ui/Input'
 
-export default function Login() {
+function LoginContent() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -76,5 +76,13 @@ export default function Login() {
 
       {err ? <p className='text-sm text-danger'>{err}</p> : null}
     </Card>
+  )
+}
+
+export default function Login() {
+  return (
+    <Suspense fallback={<div className='text-center mt-8'>Loading...</div>}>
+      <LoginContent />
+    </Suspense>
   )
 }
