@@ -104,7 +104,15 @@ export default function Opportunities() {
     setTag(initialTag)
     setSavedOnly(initialSavedOnly)
 
-    api.getMe().then((me) => setIsAdmin(me.is_admin)).catch(() => setIsAdmin(false))
+    api.getMe()
+      .then((me) => {
+        console.log('getMe:', me)
+        setIsAdmin(me.is_admin)
+      })
+      .catch((e) => {
+        console.log('getMe error:', e)
+        setIsAdmin(false)
+      })
 
     const run = async () => {
       setLoading(true)
