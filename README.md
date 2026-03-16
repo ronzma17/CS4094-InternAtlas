@@ -60,3 +60,4 @@ This repository utilizes the Google Gemini ML API to provide 5 major AI-driven c
 5. **AI Opportunity Categorization**: Automatically extracts 3-5 relevant technical tags from any newly saved or scraped opportunity.
 
 Ensure `GEMINI_API_KEY` is set in your `.env` for these features to function.
+test commit
