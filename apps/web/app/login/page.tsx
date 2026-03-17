@@ -71,7 +71,7 @@ function LoginContent() {
       </Button>
 
       <Link href='/signup' className='text-sm text-primary underline'>
-        Need an account?
+        New account?
       </Link>
 
       {err ? <p className='text-sm text-danger'>{err}</p> : null}

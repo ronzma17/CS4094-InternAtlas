@@ -288,7 +288,7 @@ export default function Opportunities() {
             className="flex-1 font-semibold shadow-sm"
             onClick={async () => { await api.trackerCreate({ title_snapshot: selectedItem.title, org_snapshot: selectedItem.org, opportunity_id: selectedItem.id }); toast('Added to tracker') }}
           >
-            Track Application
+            Track
           </Button>
           <Button
             variant={selectedItem.is_saved ? "secondary" : "outline"}
@@ -298,10 +298,10 @@ export default function Opportunities() {
             {selectedItem.is_saved ? '★ Saved' : '☆ Save'}
           </Button>
           <Button variant="outline" className="flex-1" onClick={handleCoverLetter}>
-            📝 Draft Cover Letter
+            📝 Draft
           </Button>
           <Button variant="outline" className="flex-1 bg-background" onClick={handleInterviewPrep}>
-            🎯 Interview Prep
+            🎯 Prep
           </Button>
         </div>
 
