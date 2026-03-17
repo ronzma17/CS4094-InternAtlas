@@ -31,7 +31,7 @@ export function TopNav({ onMenuToggle }: { onMenuToggle: () => void }) {
             ☰
           </button>
 
-          <Link href='/opportunities' className='flex items-center gap-2'>
+          <Link href={isLoggedIn ? '/opportunities' : '/'} className='flex items-center gap-2'>
             <div className='flex h-8 w-8 items-center justify-center rounded bg-primary text-primary-foreground font-bold'>
               IA
             </div>
