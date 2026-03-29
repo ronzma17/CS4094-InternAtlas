@@ -6,20 +6,26 @@ type Theme = 'light' | 'dark'
 
 const ThemeContext = createContext<{ theme: Theme; toggle: () => void }>({ theme: 'light', toggle: () => {} })
 
-function initialTheme(): Theme {
-  if (typeof window === 'undefined') return 'light'
+function resolveTheme(): Theme {
   const stored = window.localStorage.getItem('internatlas-theme') as Theme | null
   if (stored === 'light' || stored === 'dark') return stored
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(initialTheme)
+  const [theme, setTheme] = useState<Theme>('light')
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setTheme(resolveTheme())
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
     document.documentElement.classList.toggle('dark', theme === 'dark')
     window.localStorage.setItem('internatlas-theme', theme)
-  }, [theme])
+  }, [mounted, theme])
 
   const value = useMemo(
     () => ({

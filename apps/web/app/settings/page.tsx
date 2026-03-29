@@ -45,6 +45,8 @@ function PasswordField({
 }
 
 export default function SettingsPage() {
+  const MIN_PASSWORD_LENGTH = 6
+
   const [email, setEmail] = useState('')
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -64,6 +66,11 @@ export default function SettingsPage() {
   const handleSavePassword = () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
       toast('Please fill out all password fields')
+      return
+    }
+
+    if (newPassword.length < MIN_PASSWORD_LENGTH) {
+      toast(`New password must be at least ${MIN_PASSWORD_LENGTH} characters long`)
       return
     }
 
