@@ -8,15 +8,24 @@ import { Container } from '../ui/Card'
 import { Input } from '../ui/Input'
 import { GuestActions } from './GuestActions'
 import { UserMenu } from './UserMenu'
+import { api } from '../../lib/api'
 
 export function TopNav({ onMenuToggle }: { onMenuToggle: () => void }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [isAdmin] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const pathname = usePathname()
 
   useEffect(() => {
-    const loggedIn = localStorage.getItem('isLoggedIn') === 'true'
-    setIsLoggedIn(loggedIn)
+    // Ask the server who is logged in instead of trusting a flag in localStorage
+    api.getMe()
+      .then((me) => {
+        setIsLoggedIn(true)
+        setIsAdmin(me.is_admin)
+      })
+      .catch(() => {
+        setIsLoggedIn(false)
+        setIsAdmin(false)
+      })
   }, [pathname])
 
   return (

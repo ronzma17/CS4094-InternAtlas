@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { Input } from '../../components/ui/Input'
 import { useToast } from '../../components/ui/Toast'
+import { api } from '../../lib/api'
 
 function PasswordField({
   label,
@@ -59,8 +60,11 @@ export default function SettingsPage() {
   const toast = useToast()
 
   useEffect(() => {
-    const savedEmail = localStorage.getItem('userEmail') || ''
-    setEmail(savedEmail)
+    api.getMe()
+      .then((me) => setEmail(me.email))
+      .catch(() => {
+        window.location.href = '/login'
+      })
   }, [])
 
   const handleSavePassword = () => {
@@ -85,10 +89,14 @@ export default function SettingsPage() {
     setConfirmPassword('')
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn')
-    localStorage.removeItem('userEmail')
-    window.location.href = '/opportunities'
+  const handleLogout = async () => {
+    try {
+      await api.logout()
+    } finally {
+      localStorage.removeItem('isLoggedIn')
+      localStorage.removeItem('userEmail')
+      window.location.href = '/login'
+    }
   }
 
   return (

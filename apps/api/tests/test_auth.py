@@ -27,6 +27,27 @@ async def test_logout_clears_cookie(client):
 
 
 @pytest.mark.asyncio
+async def test_me_requires_login(client):
+    me = await client.get("/me")
+    assert me.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_logout_ends_session(client):
+    await register_and_login(client, email="session@test.com")
+    assert (await client.get("/me")).status_code == 200
+
+    await client.post("/auth/logout")
+    assert (await client.get("/me")).status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_guest_cannot_use_admin_routes(client):
+    seed = await client.post("/admin/seed")
+    assert seed.status_code == 401
+
+
+@pytest.mark.asyncio
 async def test_duplicate_registration_fails(client):
     await register_and_login(client, email="dupe@test.com")
     dupe = await client.post("/auth/register", json={"email": "dupe@test.com", "password": "password"})

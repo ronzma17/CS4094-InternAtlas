@@ -128,6 +128,10 @@ export default function Opportunities() {
         const initial = data.find((item) => item.id === initialSelected)?.id || data[0]?.id || null
         setSelected(initial)
       } catch (e: any) {
+        if (e instanceof ApiError && e.status === 401) {
+          window.location.href = '/login'
+          return
+        }
         setItems([])
         setError(e.message || 'Unable to reach API. Please retry.')
       } finally {

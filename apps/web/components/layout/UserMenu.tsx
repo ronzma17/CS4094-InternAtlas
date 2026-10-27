@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { api } from '../../lib/api'
 
 export function UserMenu({ isAdmin }: { isAdmin: boolean }) {
   const [open, setOpen] = useState(false)
@@ -29,9 +30,15 @@ export function UserMenu({ isAdmin }: { isAdmin: boolean }) {
           )}
 
           <button
-            onClick={() => {
-              localStorage.removeItem('isLoggedIn')
-              window.location.href = '/opportunities'
+            onClick={async () => {
+              try {
+                // Ask the server to clear the login cookie, not just the browser flag
+                await api.logout()
+              } finally {
+                localStorage.removeItem('isLoggedIn')
+                localStorage.removeItem('userEmail')
+                window.location.href = '/login'
+              }
             }}
             className='mt-1 w-full rounded-md px-3 py-2 text-left text-sm hover:bg-muted'
           >

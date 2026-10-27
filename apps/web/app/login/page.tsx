@@ -58,8 +58,6 @@ function LoginContent() {
         onClick={async () => {
           try {
             await api.login({ email, password })
-            localStorage.setItem('isLoggedIn', 'true')
-            localStorage.setItem('userEmail', email)
             window.location.href = '/opportunities'
           }
           catch (e: any) {
